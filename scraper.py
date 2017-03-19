@@ -103,7 +103,10 @@ for sec in pricing_data.keys():
     for col in company.keys():
         winners_vs_20.loc[sec][col] = company[col][0]
 
-sorted_winners = winners_vs_20.sort_values(by=["MY_RSI_RANK", "Days_x_Ratio"], ascending=False)
+sorted_winners1 = winners_vs_20.sort_values(by=["MY_RSI_RANK", "Days_x_Ratio"], ascending=False)
+
+sorted_winners = sorted_winners1[["extraction_date", "Code", "Company name", "GICS industry group", "URL", "MY_RSI_RANK",
+                                  "Days", "Days_x_Ratio", "Rounded_Days", "extracted_on"]]
 
 # Save in the database
 for index, row in sorted_winners.iterrows():
