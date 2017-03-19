@@ -103,12 +103,13 @@ for sec in pricing_data.keys():
     for col in company.keys():
         winners_vs_20.loc[sec][col] = company[col][0]
 
-sorted_winners = winners_vs_20.sort_values(by=["MY_RSI_RANK", "Days_x_Ratio"], ascending=False)
+sorted_winners = winners_vs_20.sort_values(by=["MY_RSI_RANK", "Days_x_Ratio"], ascending=False).round(decimals=0)
 
 column_names = sorted_winners.columns
 sorted_winners.columns = [w.replace(' ', '_') for w in column_names]
 
 # Save in the database
 for index, row in sorted_winners.iterrows():
-    print row.to_dict()
-    scraperwiki.sqlite.save(unique_keys=['Code', 'extraction_date'], data=row.to_dict())
+    row_dict = {'MY_SHORT_MAV': 0.876, 'Volume': 121400.0, 'Days_Over_Under': 1.0, 'Code': 'TGP', 'Low': 0.89, 'MY_MAV': 0.873, 'URL': 'https://au.finance.yahoo.com/echarts?s=TGP.AX', 'Open': 0.89, 'Days_x_Ratio': 0.0, 'Days': 4.0, 'Adj_Close': 0.89, 'High': 0.895, 'MY_RSI_RANK': 0.86, 'MY_RSI': 0.003, 'Company_name': '360 CAPITAL GROUP', 'GICS_industry_group': 'Real Estate', 'Close': 0.89, 'Rounded_Days': 0.0, 'extracted_on': '19-03-2017 16:03:29', 'extraction_date': '19-03-2017'}
+    scraperwiki.sqlite.save(unique_keys=['Code', 'extraction_date'], data=row_dict)
+    break
