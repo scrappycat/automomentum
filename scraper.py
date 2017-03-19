@@ -84,7 +84,7 @@ pd.set_option('display.max_colwidth', -1)
 
 columns = []
 columns.extend(df_asx300secs.columns)
-columns.extend(["URL", "date", "extracted_on"])
+columns.extend(["URL", "extraction_date", "extracted_on"])
 columns.extend(pricing_data.itervalues().next().columns)
 
 winners_vs_20 = pd.DataFrame(data=None, index=pricing_data.keys(), columns=columns)
@@ -98,7 +98,7 @@ for sec in pricing_data.keys():
     company = df_asx300secs.ix[df_asx300secs.Code == sec].to_dict("list")
     link = 'https://au.finance.yahoo.com/echarts?s={0}.AX'.format(sec)
     winners_vs_20.loc[sec]["URL"] = link
-    winners_vs_20.loc[sec]["date"] = datetime.now().date().strftime("%d-%m-%Y")
+    winners_vs_20.loc[sec]["extraction_date"] = datetime.now().date().strftime("%d-%m-%Y")
     winners_vs_20.loc[sec]["extracted_on"] = datetime.now().strftime("%d-%m-%Y %H:%m:%S")
     for col in company.keys():
         winners_vs_20.loc[sec][col] = company[col][0]
@@ -107,4 +107,5 @@ sorted_winners = winners_vs_20.sort_values(by=["MY_RSI_RANK", "Days_x_Ratio"], a
 
 # Save in the database
 for index, row in sorted_winners.iterrows():
-    scraperwiki.sqlite.save(unique_keys=['Code', 'date'], data=row.to_dict(), table_name="data")
+    scraperwiki.sqlite.save(unique_keys=['Code', 'extraction_date'], data=row.to_dict())
+    break
