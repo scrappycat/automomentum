@@ -9,19 +9,23 @@ import os
 import pandas as pd
 import pandas_datareader.data as web
 import time
+from pytz import timezone
+
+now = datetime.now(timezone('Australia/Melbourne')).now()
 
 if False:
+
     # Bail if run on weekend
-    if datetime.now().strftime("%A") in ["Saturday", "Sunday"]:
-        print "Run on weekend, bailing..."
+    if now.strftime("%A") in ["Saturday", "Sunday"]:
+        print "Runs on weekend, bailing..."
         exit(0)
 
     # Sleep until after 17:00
-    hour = int(datetime.now().strftime("%H"))
+    hour = int(now.strftime("%H"))
     while hour < 17:
         time.sleep((17 - hour) * 60 * 60)
 
-TO_DATE = datetime.now()
+TO_DATE = now
 FROM_DATE = TO_DATE - relativedelta.relativedelta(months=12)
 
 # # Load data for ASX securitues
@@ -103,4 +107,6 @@ sorted_winners = winners_vs_20.sort_values(by=["MY_RSI_RANK", "Days_x_Ratio"], a
 
 # Save in the database
 for index, row in sorted_winners.iterrows():
-    scraperwiki.sqlite.save(unique_keys=['Code', 'date'], data=row.to_dict())
+    scraperwiki.sqlite.save(unique_keys=['Code', 'date'], data=row.to_dict(), table_name="data")
+
+sorted_winners
