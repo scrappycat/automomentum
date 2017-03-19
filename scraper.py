@@ -11,7 +11,7 @@ import pandas_datareader.data as web
 import time
 from pytz import timezone
 
-now = datetime.now(timezone('Australia/Melbourne')).now()
+now = datetime.now(timezone('Australia/Melbourne'))
 
 if False:
 
@@ -22,7 +22,7 @@ if False:
 
     # Sleep until after 17:00
     hour = int(now.strftime("%H"))
-    while hour < 17:
+    if 17 > hour:
         time.sleep((17 - hour) * 60 * 60)
 
 TO_DATE = now
@@ -105,7 +105,9 @@ for sec in pricing_data.keys():
 
 sorted_winners = winners_vs_20.sort_values(by=["MY_RSI_RANK", "Days_x_Ratio"], ascending=False)
 
+column_names = sorted_winners.columns
+sorted_winners.columns = [w.replace(' ', '_') for w in column_names]
+
 # Save in the database
 for index, row in sorted_winners.iterrows():
     scraperwiki.sqlite.save(unique_keys=['Code', 'extraction_date'], data=row.to_dict())
-    break
