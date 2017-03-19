@@ -8,6 +8,18 @@ import numpy as np
 import os
 import pandas as pd
 import pandas_datareader.data as web
+import time
+
+if False:
+    # Bail if run on weekend
+    if datetime.now().strftime("%A") in ["Saturday", "Sunday"]:
+        print "Run on weekend, bailing..."
+        exit(0)
+
+    # Sleep until after 17:00
+    hour = int(datetime.now().strftime("%H"))
+    while hour < 17:
+        time.sleep((17 - hour) * 60 * 60)
 
 TO_DATE = datetime.now()
 FROM_DATE = TO_DATE - relativedelta.relativedelta(months=12)
@@ -49,7 +61,6 @@ for sec_val in pricing_panel.minor_axis:
 
 MY_SHORT_MAV_TIME_PERIOD = int(os.environ['MORPH_MY_SHORT_MAV_TIME_PERIOD'])
 MY_MAV_TIME_PERIOD = int(os.environ['MORPH_MY_MAV_TIME_PERIOD'])
-
 
 for sec in pricing_data.keys():
     pricing_data[sec]["MY_MAV"] = pricing_data[sec]["Close"].rolling(window=MY_MAV_TIME_PERIOD, center=False).mean()
