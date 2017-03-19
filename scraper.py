@@ -110,4 +110,5 @@ sorted_winners.columns = [w.replace(' ', '_') for w in column_names]
 
 # Save in the database
 for index, row in sorted_winners.iterrows():
+    print row.to_dict()
     scraperwiki.sqlite.save(unique_keys=['Code', 'extraction_date'], data=row.to_dict())
