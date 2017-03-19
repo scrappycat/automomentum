@@ -107,4 +107,4 @@ sorted_winners = winners_vs_20.sort_values(by=["MY_RSI_RANK", "Days_x_Ratio"], a
 
 # Save in the database
 for index, row in sorted_winners.iterrows():
-    scraperwiki.sqlite.save(unique_keys=['Code', 'extraction_date'], data=row_dict)
+    scraperwiki.sqlite.save(unique_keys=['Code', 'extraction_date'], data=row.to_dict())
