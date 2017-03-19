@@ -1,56 +1,44 @@
 from datetime import datetime
+
+import scraperwiki as scraperwiki
 from dateutil import relativedelta
-import pickle
+from talib import SMA
+import numpy as np
+import os
+import pandas as pd
+import pandas_datareader.data as web
+
 
 TO_DATE = datetime.now()
-# TO_DATE = datetime(2009, 1, 1)
 FROM_DATE = TO_DATE - relativedelta.relativedelta(months=12)
 
 # # Load data for ASX securitues
 
-# In[2]:
-
-import pandas as pd
-import pandas_datareader.data as web
-
 df_asx300secs = pd.read_csv("ASXListedCompanies.csv")
-
-# # Load pricing data from Yahoo
-
-# In[3]:
 
 pricing_panel = None
 
 secs = df_asx300secs.Code.values
 
-# Load from Yahoo or from pickle?
-if False:
-    with open("stock_prices.pickle", 'rb') as file:
-        pricing_panel = pickle.load(file)
-else:
-    num = 10
+# Load from Yahoo
+num = 10
 
-    for index in range(0, len(secs), num):
+for index in range(0, len(secs), num):
 
-        codes = ["%s.AX" % x for x in secs[index:index + num]]
+    codes = ["%s.AX" % x for x in secs[index:index + num]]
 
-        print "Loading data for %s" % codes
+    print "Loading data for %s" % codes
 
-        data = web.DataReader(codes, 'yahoo', FROM_DATE, TO_DATE)
+    data = web.DataReader(codes, 'yahoo', FROM_DATE, TO_DATE)
 
-        if pricing_panel is None:
-            pricing_panel = data
-        else:
-            pricing_panel = pd.concat([pricing_panel, data], axis=2)
+    if pricing_panel is None:
+        pricing_panel = data
+    else:
+        pricing_panel = pd.concat([pricing_panel, data], axis=2)
 
-    pricing_panel = pricing_panel.dropna(axis=2, how="all")
+pricing_panel = pricing_panel.dropna(axis=2, how="all")
 
-    with open('stock_prices.pickle', 'wb') as handle:
-        pickle.dump(pricing_panel, handle)
-
-    print "Done"
-
-# In[4]:
+print "Done"
 
 pricing_data = {}
 for sec_val in pricing_panel.minor_axis:
@@ -59,13 +47,8 @@ for sec_val in pricing_panel.minor_axis:
 
 # # Momentum calculations
 
-# In[5]:
-
-from talib import SMA
-import numpy as np
-
-MY_SHORT_MAV_TIME_PERIOD = 12
-MY_MAV_TIME_PERIOD = 64
+MY_SHORT_MAV_TIME_PERIOD = int(os.environ['MY_SHORT_MAV_TIME_PERIOD'])
+MY_MAV_TIME_PERIOD = int(os.environ['MY_MAV_TIME_PERIOD'])
 
 for sec in pricing_data.keys():
     pricing_data[sec]["MY_MAV"] = SMA(pricing_data[sec]["Close"].values, timeperiod=MY_MAV_TIME_PERIOD)
@@ -80,16 +63,11 @@ for sec in pricing_data.keys():
         0) * 50
     pricing_data[sec]["Rounded_Days"] = (pricing_data[sec]["Days"] / 10).round(0) * 10
 
-# In[6]:
-
-import pickle
-from IPython.display import HTML
-
 pd.set_option('display.max_colwidth', -1)
 
 columns = []
 columns.extend(df_asx300secs.columns)
-columns.extend(["URL"])
+columns.extend(["URL", "date", "extracted_on"])
 columns.extend(pricing_data.itervalues().next().columns)
 
 winners_vs_20 = pd.DataFrame(data=None, index=pricing_data.keys(), columns=columns)
@@ -101,26 +79,17 @@ for sec in pricing_data.keys():
 
     # Copy company details
     company = df_asx300secs.ix[df_asx300secs.Code == sec].to_dict("list")
-    link = '<a href="https://au.finance.yahoo.com/echarts?s={0}.AX" target="_blank">{0}</a>'.format(sec)
+    link = 'https://au.finance.yahoo.com/echarts?s={0}.AX'.format(sec)
     winners_vs_20.loc[sec]["URL"] = link
+    winners_vs_20.loc[sec]["date"] = datetime.now().date().strftime("%d-%m-%Y")
+    winners_vs_20.loc[sec]["extracted_on"] = datetime.now().strftime("%d-%m-%Y %H:%m:%S")
     for col in company.keys():
         winners_vs_20.loc[sec][col] = company[col][0]
 
-# In[7]:
+sorted_winners = winners_vs_20.sort_values(by=["MY_RSI_RANK", "Days_x_Ratio"], ascending=False)
 
-sorted_winners1 = winners_vs_20.sort_values(by=["MY_RSI_RANK", "Days_x_Ratio"], ascending=False)
-
-sorted_winners = sorted_winners1[
-    #   (sorted_winners1["Volume"] > 500000) &
-    (sorted_winners1["Volume"] > 1000000) &
-    (sorted_winners1["Close"] > 0.25) &
-    (sorted_winners1["Rounded_Days"] >= 0) &
-    (sorted_winners1["Days_x_Ratio"] >= 10) &
-    (sorted_winners1["MY_RSI_RANK"] >= 0.75) &
-    1 == 1
-    ]
+# Save in the database
+for index, row in sorted_winners.iterrows():
+    scraperwiki.sqlite.save(unique_keys=['Code', 'date'], data=row.to_dict())
 
 
-# In[8]:
-
-# sorted_winners

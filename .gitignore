@@ -1,6 +1,9 @@
 #Idea IDE
 /.idea/
 
+#Scraperwiki
+scraperwiki.sqlite
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
