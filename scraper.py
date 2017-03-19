@@ -47,8 +47,8 @@ for sec_val in pricing_panel.minor_axis:
 
 # # Momentum calculations
 
-MY_SHORT_MAV_TIME_PERIOD = int(os.environ['MY_SHORT_MAV_TIME_PERIOD'])
-MY_MAV_TIME_PERIOD = int(os.environ['MY_MAV_TIME_PERIOD'])
+MY_SHORT_MAV_TIME_PERIOD = int(os.environ['MORPH_MY_SHORT_MAV_TIME_PERIOD'])
+MY_MAV_TIME_PERIOD = int(os.environ['MORPH_MY_MAV_TIME_PERIOD'])
 
 for sec in pricing_data.keys():
     pricing_data[sec]["MY_MAV"] = SMA(pricing_data[sec]["Close"].values, timeperiod=MY_MAV_TIME_PERIOD)
