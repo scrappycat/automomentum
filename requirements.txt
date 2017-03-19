@@ -1,4 +1,5 @@
-scraperwiki
+-e git+http://github.com/openaustralia/scraperwiki-python.git@morph_defaults#egg=scraperwiki
+
 pandas==0.19.2
 pandas_datareader>=0.3.0
 numpy==1.12.1
