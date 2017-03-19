@@ -103,13 +103,8 @@ for sec in pricing_data.keys():
     for col in company.keys():
         winners_vs_20.loc[sec][col] = company[col][0]
 
-sorted_winners = winners_vs_20.sort_values(by=["MY_RSI_RANK", "Days_x_Ratio"], ascending=False).round(decimals=0)
-
-column_names = sorted_winners.columns
-sorted_winners.columns = [w.replace(' ', '_') for w in column_names]
+sorted_winners = winners_vs_20.sort_values(by=["MY_RSI_RANK", "Days_x_Ratio"], ascending=False)
 
 # Save in the database
 for index, row in sorted_winners.iterrows():
-    row_dict = {"Code": "123", "extraction_date": "123123123"}
     scraperwiki.sqlite.save(unique_keys=['Code', 'extraction_date'], data=row_dict)
-    break
