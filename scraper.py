@@ -4,12 +4,10 @@ from datetime import datetime
 
 import scraperwiki as scraperwiki
 from dateutil import relativedelta
-from talib import SMA
 import numpy as np
 import os
 import pandas as pd
 import pandas_datareader.data as web
-
 
 TO_DATE = datetime.now()
 FROM_DATE = TO_DATE - relativedelta.relativedelta(months=12)
@@ -52,9 +50,11 @@ for sec_val in pricing_panel.minor_axis:
 MY_SHORT_MAV_TIME_PERIOD = int(os.environ['MORPH_MY_SHORT_MAV_TIME_PERIOD'])
 MY_MAV_TIME_PERIOD = int(os.environ['MORPH_MY_MAV_TIME_PERIOD'])
 
+
 for sec in pricing_data.keys():
-    pricing_data[sec]["MY_MAV"] = SMA(pricing_data[sec]["Close"].values, timeperiod=MY_MAV_TIME_PERIOD)
-    pricing_data[sec]["MY_SHORT_MAV"] = SMA(pricing_data[sec]["Close"].values, timeperiod=MY_SHORT_MAV_TIME_PERIOD)
+    pricing_data[sec]["MY_MAV"] = pricing_data[sec]["Close"].rolling(window=MY_MAV_TIME_PERIOD, center=False).mean()
+    pricing_data[sec]["MY_SHORT_MAV"] = pricing_data[sec]["Close"].rolling(window=MY_SHORT_MAV_TIME_PERIOD,
+                                                                           center=False).mean()
     pricing_data[sec]["MY_RSI"] = pricing_data[sec]["MY_SHORT_MAV"] - pricing_data[sec]["MY_MAV"]
     pricing_data[sec]["MY_RSI_RANK"] = pricing_data[sec]["MY_RSI"].rank(pct=True, method='average').round(2) - 0.01
     pricing_data[sec]["Days_Over_Under"] = np.where(pricing_data[sec]["MY_SHORT_MAV"] > pricing_data[sec]["MY_MAV"], 1,
@@ -93,5 +93,3 @@ sorted_winners = winners_vs_20.sort_values(by=["MY_RSI_RANK", "Days_x_Ratio"], a
 # Save in the database
 for index, row in sorted_winners.iterrows():
     scraperwiki.sqlite.save(unique_keys=['Code', 'date'], data=row.to_dict())
-
-
