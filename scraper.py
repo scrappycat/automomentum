@@ -13,7 +13,7 @@ from pytz import timezone
 
 now = datetime.now(timezone('Australia/Melbourne'))
 
-if int(os.environ("MORPH_RUN_DAILY")) > 0:
+if int(os.environ['MORPH_RUN_DAILY']) > 0:
 
     # Bail if run on weekend
     if now.strftime("%A") in ["Saturday", "Sunday"]:
