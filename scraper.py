@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-import scraperwiki as scraperwiki
+import scraperwiki
 from dateutil import relativedelta
 import numpy as np
 import os
