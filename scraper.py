@@ -13,7 +13,7 @@ from pytz import timezone
 
 now = datetime.now(timezone('Australia/Melbourne'))
 
-if False:
+if True:
 
     # Bail if run on weekend
     if now.strftime("%A") in ["Saturday", "Sunday"]:
