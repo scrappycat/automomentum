@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 from datetime import datetime
 
 import scraperwiki as scraperwiki
