@@ -114,7 +114,7 @@ sorted_winners2 = sorted_winners1[
 
 sorted_winners = sorted_winners2[["extraction_date", "Code", "Company name", "GICS industry group", "URL",
                                   "MY_RSI_RANK", "Days", "Days_x_Ratio", "Rounded_Days", "extracted_on", "Volume",
-                                  "Close"]]
+                                  "Close", "MY_MAV", "MY_SHORT_MAV"]]
 
 
 # Save in the database
