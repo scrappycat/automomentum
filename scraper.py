@@ -108,12 +108,9 @@ sorted_winners1 = winners_vs_20.sort_values(by=["MY_RSI_RANK", "Days_x_Ratio"], 
 
 # Apply some filtering to remove noisy stocks
 sorted_winners2 = sorted_winners1[
-#    (sorted_winners1["Volume"] > int(os.environ['MORPH_VOLUME_CUTOVER'])) &
-#    (sorted_winners1["Close"] > float(os.environ['MORPH_CLOSE_CUTOVER']))
-    (sorted_winners1["Volume"] > 750000) &
-    (sorted_winners1["Close"] > 0.2)
-
-    ]
+    (sorted_winners1["Volume"] > int(os.environ['MORPH_VOLUME_CUTOVER'])) &
+    (sorted_winners1["Close"] > float(os.environ['MORPH_CLOSE_CUTOVER']))
+]
 
 sorted_winners = sorted_winners2[["extraction_date", "Code", "Company name", "GICS industry group", "URL",
                                   "MY_RSI_RANK", "Days", "Days_x_Ratio", "Rounded_Days", "extracted_on", "Volume",
