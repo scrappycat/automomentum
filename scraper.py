@@ -10,6 +10,7 @@ import pandas as pd
 import pandas_datareader.data as web
 import time
 from pytz import timezone
+import urllib2
 
 now = datetime.now(timezone('Australia/Melbourne'))
 
@@ -26,9 +27,21 @@ if int(os.environ['MORPH_RUN_DAILY']) > 0:
         time.sleep((17 - hour) * 60 * 60)
 
 TO_DATE = now
+# Remove
+# TO_DATE -= relativedelta.relativedelta(days=1)
 FROM_DATE = TO_DATE - relativedelta.relativedelta(months=12)
 
 # # Load data for ASX securitues
+
+response = urllib2.urlopen('http://www.asx.com.au/asx/research/ASXListedCompanies.csv')
+contents = response.read()
+
+csv_content = map(lambda x: x.replace("\r", ""), contents.split("\n"))[3:]
+
+with open('ASXListedCompanies.csv', 'wb') as csvfile:
+    csvfile.write("Company,Code,Industry group\n")
+    for row in csv_content:
+        csvfile.write(row + "\n")
 
 df_asx300secs = pd.read_csv("ASXListedCompanies.csv")
 
@@ -112,7 +125,7 @@ sorted_winners2 = sorted_winners1[
     (sorted_winners1["Close"] > float(os.environ['MORPH_CLOSE_CUTOVER']))
 ]
 
-sorted_winners = sorted_winners2[["extraction_date", "Code", "Company name", "GICS industry group", "URL",
+sorted_winners = sorted_winners2[["extraction_date", "Code", "Company", "Industry group", "URL",
                                   "MY_RSI_RANK", "Days", "Days_x_Ratio", "Rounded_Days", "extracted_on", "Volume",
                                   "Close", "MY_MAV", "MY_SHORT_MAV"]]
 
