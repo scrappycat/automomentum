@@ -27,8 +27,7 @@ if int(os.environ['MORPH_RUN_DAILY']) > 0:
         time.sleep((17 - hour) * 60 * 60)
 
 TO_DATE = now
-# Remove
-# TO_DATE -= relativedelta.relativedelta(days=1)
+TO_DATE -= relativedelta.relativedelta(days=1)
 FROM_DATE = TO_DATE - relativedelta.relativedelta(months=12)
 
 # # Load data for ASX securitues
