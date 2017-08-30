@@ -11,6 +11,7 @@ import pandas_datareader.data as web
 import time
 from pytz import timezone
 import urllib2
+from pandas_datareader._utils import RemoteDataError
 
 now = datetime.now(timezone('Australia/Melbourne'))
 
@@ -27,7 +28,7 @@ if int(os.environ['MORPH_RUN_DAILY']) > 0:
         time.sleep((17 - hour) * 60 * 60)
 
 TO_DATE = now
-TO_DATE -= relativedelta.relativedelta(days=1)
+TO_DATE -= relativedelta.relativedelta(days=int(os.environ['MORPH_DAYS_OFFSET']))
 FROM_DATE = TO_DATE - relativedelta.relativedelta(months=12)
 
 # # Load data for ASX securitues
@@ -57,12 +58,15 @@ for index in range(0, len(secs), num):
 
     print "Loading data for %s" % codes
 
-    data = web.DataReader(codes, 'yahoo', FROM_DATE, TO_DATE)
+    try:
+        data = web.DataReader(codes, 'yahoo', FROM_DATE, TO_DATE)
 
-    if pricing_panel is None:
-        pricing_panel = data
-    else:
-        pricing_panel = pd.concat([pricing_panel, data], axis=2)
+        if pricing_panel is None:
+            pricing_panel = data
+        else:
+            pricing_panel = pd.concat([pricing_panel, data], axis=2)
+    except RemoteDataError:
+        print "RemoteDataError"
 
 pricing_panel = pricing_panel.dropna(axis=2, how="all")
 
