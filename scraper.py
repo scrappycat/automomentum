@@ -12,6 +12,7 @@ import time
 from pytz import timezone
 import urllib2
 from pandas_datareader._utils import RemoteDataError
+from pandas.core.indexes.base import InvalidIndexError
 
 now = datetime.now(timezone('Australia/Melbourne'))
 
@@ -69,6 +70,8 @@ for index in range(0, len(secs), num):
         print "RemoteDataError"
     except ValueError:
         print "ValueError"
+    except InvalidIndexError:
+        print "InvalidIndexError"
 
 pricing_panel = pricing_panel.dropna(axis=2, how="all")
 
