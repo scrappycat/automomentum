@@ -23,10 +23,11 @@ if int(os.environ['MORPH_RUN_DAILY']) > 0:
         print "Runs on weekend, bailing..."
         exit(0)
 
-    # Sleep until after 22:00
+    # Sleep until after RUNHOUR
+    after_hour = int(os.environ['MORPH_RUN_AFTER_HOUR'])
     hour = int(now.strftime("%H"))
-    if 22 > hour:
-        time.sleep((22 - hour) * 60 * 60)
+    if after_hour > hour:
+        time.sleep((after_hour - hour) * 60 * 60)
 
 TO_DATE = now
 TO_DATE -= relativedelta.relativedelta(days=int(os.environ['MORPH_DAYS_OFFSET']))
