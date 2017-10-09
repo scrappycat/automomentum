@@ -67,6 +67,8 @@ for index in range(0, len(secs), num):
             pricing_panel = pd.concat([pricing_panel, data], axis=2)
     except RemoteDataError:
         print "RemoteDataError"
+    except ValueError:
+        print "ValueError"
 
 pricing_panel = pricing_panel.dropna(axis=2, how="all")
 
