@@ -90,8 +90,8 @@ MY_SHORT_MAV_TIME_PERIOD = int(os.environ['MORPH_MY_SHORT_MAV_TIME_PERIOD'])
 MY_MAV_TIME_PERIOD = int(os.environ['MORPH_MY_MAV_TIME_PERIOD'])
 
 for sec in pricing_data.keys():
-    pricing_data[sec]["MY_MAV"] = pricing_data[sec]["Adj Close"].fillna(method='ffill').rolling(window=MY_MAV_TIME_PERIOD, center=False).mean()
-    pricing_data[sec]["MY_SHORT_MAV"] = pricing_data[sec]["Adj Close"].fillna(method='ffill').rolling(window=MY_SHORT_MAV_TIME_PERIOD,
+    pricing_data[sec]["MY_MAV"] = pricing_data[sec]["Close"].fillna(method='ffill').rolling(window=MY_MAV_TIME_PERIOD, center=False).mean()
+    pricing_data[sec]["MY_SHORT_MAV"] = pricing_data[sec]["Close"].fillna(method='ffill').rolling(window=MY_SHORT_MAV_TIME_PERIOD,
                                                                            center=False).mean()
     pricing_data[sec]["MY_RSI"] = pricing_data[sec]["MY_SHORT_MAV"] - pricing_data[sec]["MY_MAV"]
     pricing_data[sec]["MY_RSI_RANK"] = pricing_data[sec]["MY_RSI"].rank(pct=True, method='average').round(2) - 0.01
@@ -131,12 +131,12 @@ sorted_winners1 = winners_vs_20.sort_values(by=["MY_RSI_RANK", "Days_x_Ratio"], 
 # Apply some filtering to remove noisy stocks
 sorted_winners2 = sorted_winners1[
     (sorted_winners1["Volume"] > int(os.environ['MORPH_VOLUME_CUTOVER'])) &
-    (sorted_winners1["Adj Close"] > float(os.environ['MORPH_CLOSE_CUTOVER']))
+    (sorted_winners1["Close"] > float(os.environ['MORPH_CLOSE_CUTOVER']))
 ]
 
 sorted_winners = sorted_winners2[["extraction_date", "Code", "Company", "Industry group", "URL",
                                   "MY_RSI_RANK", "Days", "Days_x_Ratio", "Rounded_Days", "extracted_on", "Volume",
-                                  "Adj Close", "MY_MAV", "MY_SHORT_MAV"]]
+                                  "Close", "MY_MAV", "MY_SHORT_MAV"]]
 
 
 # Save in the database
