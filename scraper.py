@@ -75,7 +75,7 @@ for index in range(0, number_to_read, num):
 
         for single_sec in codes:
             try:
-                data = web.DataReader(single_sec, 'yahoo', FROM_DATE, TO_DATE)
+                data = web.DataReader([single_sec], 'yahoo', FROM_DATE, TO_DATE)
 
                 if pricing_panel is None:
                     pricing_panel = data
