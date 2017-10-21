@@ -52,7 +52,7 @@ pricing_panel = None
 secs = df_asx300secs.Code.values
 
 # Load from Yahoo
-num = 1
+num = 15
 number_to_read = int(os.environ['MORPH_NUMBER_TO_LOAD']) if 'MORPH_NUMBER_TO_LOAD' in os.environ else len(secs)
 
 for index in range(0, number_to_read, num):
@@ -71,7 +71,19 @@ for index in range(0, number_to_read, num):
     except RemoteDataError:
         print "RemoteDataError"
     except ValueError:
-        print "ValueError"
+        print "ValueError, switching to individuals"
+
+        for single_sec in codes:
+            try:
+                data = web.DataReader(single_sec, 'yahoo', FROM_DATE, TO_DATE)
+
+                if pricing_panel is None:
+                    pricing_panel = data
+                else:
+                    pricing_panel = pd.concat([pricing_panel, data], axis=2)
+            except (RemoteDataError, ValueError):
+                print 'Error retrieving %s' % single_sec
+
     except InvalidIndexError:
         print "InvalidIndexError"
 
@@ -90,9 +102,11 @@ MY_SHORT_MAV_TIME_PERIOD = int(os.environ['MORPH_MY_SHORT_MAV_TIME_PERIOD'])
 MY_MAV_TIME_PERIOD = int(os.environ['MORPH_MY_MAV_TIME_PERIOD'])
 
 for sec in pricing_data.keys():
-    pricing_data[sec]["MY_MAV"] = pricing_data[sec]["Close"].fillna(method='ffill').rolling(window=MY_MAV_TIME_PERIOD, center=False).mean()
-    pricing_data[sec]["MY_SHORT_MAV"] = pricing_data[sec]["Close"].fillna(method='ffill').rolling(window=MY_SHORT_MAV_TIME_PERIOD,
-                                                                           center=False).mean()
+    pricing_data[sec]["MY_MAV"] = pricing_data[sec]["Close"].fillna(method='ffill').rolling(window=MY_MAV_TIME_PERIOD,
+                                                                                            center=False).mean()
+    pricing_data[sec]["MY_SHORT_MAV"] = pricing_data[sec]["Close"].fillna(method='ffill').rolling(
+        window=MY_SHORT_MAV_TIME_PERIOD,
+        center=False).mean()
     pricing_data[sec]["MY_RSI"] = pricing_data[sec]["MY_SHORT_MAV"] - pricing_data[sec]["MY_MAV"]
     pricing_data[sec]["MY_RSI_RANK"] = pricing_data[sec]["MY_RSI"].rank(pct=True, method='average').round(2) - 0.01
     pricing_data[sec]["Days_Over_Under"] = np.where(pricing_data[sec]["MY_SHORT_MAV"] > pricing_data[sec]["MY_MAV"], 1,
@@ -102,7 +116,6 @@ for sec in pricing_data.keys():
     pricing_data[sec]["Days_x_Ratio"] = ((pricing_data[sec]["Days"] * pricing_data[sec]["MY_RSI_RANK"]) / 50).round(
         0) * 50
     pricing_data[sec]["Rounded_Days"] = (pricing_data[sec]["Days"] / 10).round(0) * 10
-
 
 columns = []
 columns.extend(df_asx300secs.columns)
@@ -127,17 +140,15 @@ for sec in pricing_data.keys():
 
 sorted_winners1 = winners_vs_20.sort_values(by=["MY_RSI_RANK", "Days_x_Ratio"], ascending=False)
 
-
 # Apply some filtering to remove noisy stocks
 sorted_winners2 = sorted_winners1[
     (sorted_winners1["Volume"] > int(os.environ['MORPH_VOLUME_CUTOVER'])) &
     (sorted_winners1["Close"] > float(os.environ['MORPH_CLOSE_CUTOVER']))
-]
+    ]
 
 sorted_winners = sorted_winners2[["extraction_date", "Code", "Company", "Industry group", "URL",
                                   "MY_RSI_RANK", "Days", "Days_x_Ratio", "Rounded_Days", "extracted_on", "Volume",
                                   "Close", "MY_MAV", "MY_SHORT_MAV"]]
-
 
 # Save in the database
 for index, row in sorted_winners.iterrows():
